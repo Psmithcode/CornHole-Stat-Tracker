@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 
 export default function AdvancedCounter(props) {
-  const { points, setPoints, setIsActive, isActive } = props;
+  const { score, player, setPoints, setIsActive, isActive } = props;
 
   const handleClick = () => {
     setIsActive(true);
@@ -10,7 +10,7 @@ export default function AdvancedCounter(props) {
 
   return (
     <div className="w-full h-[40%] bg-red-200 p-[3px] rounded text-white flex flex-col justify-center items-center">
-      <p className="absolute text-9xl text-red-500">{points}</p>
+      <p className="absolute text-9xl text-red-500">{score}</p>
       <button
         id="increment"
         onClick={handleClick}
