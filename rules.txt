@@ -1,0 +1,15 @@
+0: you suck, 4 bags off
+1: 1 bag on, 3 off
+2: 2 bags on, 2 off
+3: 3 bags on, 1 off OR 1 bag in, 3 off
+4: 2 bags on, 2 off OR 1 bag in, 1 bag on and 2 off
+5: 1 bag in, 2 bags on and 1 off
+6: 1 bag in, 3 bags on OR 2 bags in, 2 off
+7: 2 bags in, 1 bag on and 1 off
+8: 2 bags in, 2 bags on
+9: 3 bags in, 1 off
+10: 3 bags in, 1 bag on
+11: can't throw an 11
+12: 4 bags in
+
+Anytime there's an OR you can just prompt how many were in.
