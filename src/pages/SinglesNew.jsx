@@ -21,6 +21,12 @@ export default function SinglesNew(props) {
   const [In2, setIn2] = useState(0);
   const [on2, setOn2] = useState(0);
   const [off2, setOff2] = useState(4);
+  const [player1PointsRound, setPlayer1PointsRound] = useState([]);
+  const [player2PointsRound, setPlayer2PointsRound] = useState([]);
+  const [player1FourIn, setPlayer1FourIn] = useState(0);
+  const [player1PercentFourIn, setPlayer1PercentFourIn] = useState(0);
+  const [player2FourIn, setPlayer2FourIn] = useState(0);
+  const [player2PercentFourIn, setPlayer2PercentFourIn] = useState(0);
 
   ///////////Handles the points for players 1 & 2///////////////////////////////
 
@@ -52,6 +58,24 @@ export default function SinglesNew(props) {
   //////////Handles submitting the round and adding points////////////////
 
   const handleSubmit = () => {
+    let tempPtsArray1 = player1PointsRound;
+    let InPlayer1 = 3 * Number(In1);
+    let OnPlayer1 = Number(on1);
+    let totalPlayer1 = InPlayer1 + OnPlayer1;
+    tempPtsArray1.push(totalPlayer1);
+    setPlayer1PointsRound(tempPtsArray1);
+    let tempPtsArray2 = player2PointsRound;
+    let InPlayer2 = 3 * Number(In2);
+    let OnPlayer2 = Number(on2);
+    let totalPlayer2 = InPlayer2 + OnPlayer2;
+    tempPtsArray2.push(totalPlayer2);
+    setPlayer2PointsRound(tempPtsArray2);
+    if (totalPlayer1 === 12) {
+      setPlayer1FourIn(player1FourIn + 1);
+    }
+    if (totalPlayer2 === 12) {
+      setPlayer2FourIn(player2FourIn + 1);
+    }
     setScore1(score1 + points1);
     setScore2(score2 + points2);
     setPlayer1TotalIn(player1TotalIn + In1);
@@ -74,12 +98,14 @@ export default function SinglesNew(props) {
       let percentIn = (player1TotalIn / possible) * 100;
       let percentOn = (player1TotalOn / possible) * 100;
       let percentOff = (player1TotalOff / possible) * 100;
-      console.log("percent in:", percentIn);
-      console.log("percent on:", percentOn);
-      console.log("percent off:", percentOff);
-      setPlayer1PercentIn(percentIn);
-      setPlayer1PercentOn(percentOn);
-      setPlayer1PercentOff(percentOff);
+      let percent4In = (player1FourIn / (round - 1)) * 100;
+      // console.log("percent in:", percentIn);
+      // console.log("percent on:", percentOn);
+      // console.log("percent off:", percentOff);
+      setPlayer1PercentIn(Math.trunc(percentIn));
+      setPlayer1PercentFourIn(Math.trunc(percent4In));
+      setPlayer1PercentOn(Math.trunc(percentOn));
+      setPlayer1PercentOff(Math.trunc(percentOff));
     }
   }, [player1TotalIn, player1TotalOff, player1TotalOn]);
 
@@ -100,22 +126,18 @@ export default function SinglesNew(props) {
 
   const handleIn1 = async (event) => {
     await setIn1(Number(event.target.innerText));
-    console.log(In1);
   };
   const handleOn1 = async (event) => {
     await setOn1(Number(event.target.innerText));
-    console.log(on1);
   };
 
   ////////Handles setting the in and on for player 2///////////////////////
 
   const handleIn2 = async (event) => {
     await setIn2(Number(event.target.innerText));
-    console.log(In2);
   };
   const handleOn2 = async (event) => {
     await setOn2(Number(event.target.innerText));
-    console.log(on2);
   };
 
   ///////////Resets the score screen/////////////////////////
@@ -139,14 +161,14 @@ export default function SinglesNew(props) {
     return (
       <div
         id="select-score"
-        className="flex flex-col h-[auto] w-[100%] bg-gray-400"
+        className="flex flex-col h-[auto] w-[100%] bg-black"
       >
         <header className="flex justify-between bg-blue-300 p-[5px]">
           <h1>ENTER YOUR ROUND {round} Score</h1>
           <button onClick={closeWindow}>X</button>
         </header>
         <main className="flex flex-col justify-center items-center p-[10px]">
-          <h2>What did you score?</h2>
+          <h2 className="text-white">What did you score?</h2>
           <button
             onClick={handleReset}
             className="bg-red-500 text-white rounded mb-2"
@@ -361,34 +383,75 @@ export default function SinglesNew(props) {
   return (
     <div
       id="singles"
-      className="w-full h-full flex flex-col justify-start items-center"
+      className="w-full h-full flex flex-col bg-black p-[5px] justify-start items-center"
     >
-      <header className="w-full h-[80px] bg-gray-400 flex gap-3 justify-start">
-        <h1>Player1:</h1>
-        <div className="flex flex-col bg-black text-white">
-          <p>IN</p>
-          <hr></hr>
-          <p className="text-center items-center">%{player1PercentIn}</p>
-        </div>
-        <div className="flex flex-col bg-black text-white">
-          <p>ON</p>
-          <hr></hr>
-          <p className="text-center items-center">%{player1PercentOn}</p>
-        </div>
-        <div className="flex flex-col bg-black text-white">
-          <p>OFF</p>
-          <hr></hr>
-          <p className="text-center items-center">%{player1PercentOff}</p>
-        </div>
+      <header className="w-full z-20 h-[16%] bg-black flex flex-col justify-start">
+        <section className="flex h-[50%] justify-evenly">
+          <h1 className="text-white">Player1:</h1>
+          <div className="flex flex-col  text-white">
+            <p>4IN</p>
+            <hr></hr>
+            <p className="text-center items-center">%{player1PercentFourIn}</p>
+          </div>
+          <div className="flex flex-col  text-white">
+            <p>IN</p>
+            <hr></hr>
+            <p className="text-center items-center">%{player1PercentIn}</p>
+          </div>
+          <div className="flex flex-col  text-white">
+            <p>ON</p>
+            <hr></hr>
+            <p className="text-center items-center">%{player1PercentOn}</p>
+          </div>
+          <div className="flex flex-col  text-white">
+            <p>OFF</p>
+            <hr></hr>
+            <p className="text-center items-center">%{player1PercentOff}</p>
+          </div>
+        </section>
+        <section>
+          <section className="flex h-[50%] justify-evenly">
+            <h1 className="text-white">Player1:</h1>
+            <div className="flex flex-col  text-white">
+              <p>4IN</p>
+              <hr></hr>
+              <p className="text-center items-center">
+                %{player1PercentFourIn}
+              </p>
+            </div>
+            <div className="flex flex-col  text-white">
+              <p>IN</p>
+              <hr></hr>
+              <p className="text-center items-center">%{player1PercentIn}</p>
+            </div>
+            <div className="flex flex-col  text-white">
+              <p>ON</p>
+              <hr></hr>
+              <p className="text-center items-center">%{player1PercentOn}</p>
+            </div>
+            <div className="flex flex-col  text-white">
+              <p>OFF</p>
+              <hr></hr>
+              <p className="text-center items-center">%{player1PercentOff}</p>
+            </div>
+          </section>
+        </section>
       </header>
       <AdvancedCounter
+        roundScores={player1PointsRound}
         player={1}
         score={score1}
         isActive={isActive}
         setIsActive={setIsActive}
       />
-      <div className="w-full h-[60px] bg-gray-400">Round: {round}</div>
+      <div className="w-full z-20 h-[8%] text-white bg-black">
+        <div className="flex flex-col justify-center items-center">
+          <h2>Round</h2>
+          <p>{round}</p>
+        </div>
+      </div>
       <AdvancedCounter
+        roundScores={player2PointsRound}
         player={2}
         score={score2}
         isActive={isActive}
