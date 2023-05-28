@@ -31,7 +31,7 @@ export default function AdvancedCounter(props) {
 
             <p className="text-white font-bold w-[40px] flex justify-center items-center  text-[20px]">R:{idx + 1}</p>
             <hr></hr>
-            <p className="text-white font-bold w-[40px] flex justify-center items-center ">+{round}</p>
+            <p className="text-white font-bold w-[40px] flex justify-center text-[12px] items-center ">PTS:{round}</p>
           </div>
         ))}
       </div>
