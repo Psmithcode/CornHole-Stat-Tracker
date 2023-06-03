@@ -2,12 +2,13 @@ import React, { useEffect, useState, useTransition } from "react";
 import SimpleCounter from "../components/SimpleCounter";
 import AdvancedCounter from "../components/AdvancedCounter";
 import { Link } from "react-router-dom";
+import Fade from "react-reveal";
 
 export default function Advanced(props) {
   const [isActive, setIsActive] = useState(false);
   const [round, setRound] = useState(1);
 
-////////PLAYER 1//////////////////////////////////////////////////////
+  ////////PLAYER 1//////////////////////////////////////////////////////
 
   const [score1, setScore1] = useState(0);
   const [points1, setPoints1] = useState(0);
@@ -24,9 +25,8 @@ export default function Advanced(props) {
   const [player1PointsPerRound, setPlayer1PointsPerRound] = useState(0);
   const [player1FourIn, setPlayer1FourIn] = useState(0);
   const [player1PercentFourIn, setPlayer1PercentFourIn] = useState(0);
-  
-  
-  
+  const [player1Name, setPlayer1Name] = useState("");
+
   ///PLAYER 2///////////////////////////////////////////////////////////
   const [score2, setScore2] = useState(0);
   const [points2, setPoints2] = useState(0);
@@ -43,6 +43,7 @@ export default function Advanced(props) {
   const [player2PointsPerRound, setPlayer2PointsPerRound] = useState(0);
   const [player2FourIn, setPlayer2FourIn] = useState(0);
   const [player2PercentFourIn, setPlayer2PercentFourIn] = useState(0);
+  const [player2Name, setPlayer2Name] = useState("");
 
   ///////////Handles the points for players 1 & 2///////////////////////////////
 
@@ -71,10 +72,29 @@ export default function Advanced(props) {
     }
   }, [on1, In1, off1, on2, In2, off2]);
 
+  ///////////Determines if a player has won////////////////////////
+
+  useEffect(() => {
+    if (score1 >= 21) {
+      window.alert("Player 1 Won!");
+    }
+    if (score2 >= 21) {
+      window.alert("Player 1 Won!");
+    }
+  }, [score1, score2]);
+
   //////////Handles submitting the round and adding points////////////////
   ///So I was trying to keep the submit function neat and tidy but it has become an unholy abomination and I'm not sorry about it////////////////////
 
   const handleSubmit = async () => {
+    if (on1 + In1 > 4) {
+      window.alert("Invalid points for Player1");
+      return;
+    }
+    if (on2 + In2 > 4) {
+      window.alert("Invalid points for Player2");
+      return;
+    }
     let tempPtsArray1 = player1PointsRound;
     let InPlayer1 = 3 * Number(In1);
     let OnPlayer1 = Number(on1);
@@ -128,7 +148,9 @@ export default function Advanced(props) {
       setPlayer1PercentOn(Math.trunc(percentOn));
       setPlayer1PercentOff(Math.trunc(percentOff));
       let sum = player1PointsRound.reduce((sum, i) => sum + i, 0);
-      setPlayer1PointsPerRound(sum / (round - 1));
+      let ppr = sum / (round - 1);
+      let num = ppr.toFixed(1);
+      setPlayer1PointsPerRound(Number(num));
     }
   }, [player1TotalIn, player1TotalOff, player1TotalOn]);
   useEffect(() => {
@@ -150,7 +172,9 @@ export default function Advanced(props) {
       setPlayer2PercentOn(Math.trunc(percentOn));
       setPlayer2PercentOff(Math.trunc(percentOff));
       let sum = player2PointsRound.reduce((sum, i) => sum + i, 0);
-      setPlayer2PointsPerRound(sum / (round - 1));
+      let ppr = sum / (round - 1);
+      let num = ppr.toFixed(1);
+      setPlayer2PointsPerRound(Number(num));
     }
   }, [player2TotalIn, player2TotalOff, player2TotalOn]);
 
@@ -159,12 +183,20 @@ export default function Advanced(props) {
   useEffect(() => {
     let off = 4;
     let sum = Number(In1) + Number(on1);
-    setOff1(off - sum);
+    if (sum > 4) {
+      setOff1(0);
+    } else {
+      setOff1(off - sum);
+    }
   }, [In1, on1]);
   useEffect(() => {
     let off = 4;
     let sum = Number(In2) + Number(on2);
-    setOff2(off - sum);
+    if (sum > 4) {
+      setOff2(0);
+    } else {
+      setOff2(off - sum);
+    }
   }, [In2, on2]);
 
   ////////Handles setting the in and on for player 1///////////////////////
@@ -204,217 +236,252 @@ export default function Advanced(props) {
 
   if (isActive) {
     return (
+      // <Fade>
       <div
         id="select-score"
-        className="flex flex-col h-[auto] w-[100%] bg-black"
+        className="flex flex-col h-[auto] w-[90%] max-w-[700px] rounded bg-[var(--light)] shadow-lg"
       >
-        <header className="flex justify-between bg-blue-300 p-[5px]">
-          <h1>ENTER YOUR ROUND {round} Score</h1>
-          <button onClick={closeWindow}>X</button>
+        <header className="flex rounded justify-between bg-[var(--grey)] p-[5px]">
+          <h1 className="text-[var(--light)] font-bold">
+            ENTER YOUR ROUND {round} Score
+          </h1>
+          <button
+            onClick={closeWindow}
+            className="bg-[var(--red)] text-[var(--light)] font-bold px-[3px] rounded"
+          >
+            X
+          </button>
         </header>
-        <main className="flex flex-col justify-center items-center p-[10px]">
-          <h2 className="text-white">What did you score?</h2>
+        <main className="flex flex-col justify-center items-center p-[10px] ">
           <button
             onClick={handleReset}
-            className="bg-red-500 text-white rounded mb-2"
+            className="bg-[var(--red)] text-[var(--light)] font-bold px-[15px] rounded mb-2"
           >
             Reset
           </button>
-          <section className="w-full flex flex-col gap-[5px]">
-            <div className="flex justify-evenly">
-              <h3 className="text-2xl text-white font-bold w-[15%]">IN:</h3>
-              <button
-                onClick={handleIn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                0
-              </button>
-              <button
-                onClick={handleIn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                1
-              </button>
-              <button
-                onClick={handleIn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                2
-              </button>
-              <button
-                onClick={handleIn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                3
-              </button>
-              <button
-                onClick={handleIn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                4
-              </button>
-            </div>
-            <div className="flex justify-evenly">
-              <h3 className="text-2xl text-white font-bold w-[15%]">ON:</h3>
-              <button
-                onClick={handleOn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                0
-              </button>
-              <button
-                onClick={handleOn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                1
-              </button>
-              <button
-                onClick={handleOn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                2
-              </button>
-              <button
-                onClick={handleOn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                3
-              </button>
-              <button
-                onClick={handleOn1}
-                className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                4
-              </button>
-            </div>
-          </section>
+          <div
+            id="player-containers"
+            className="w-full flex flex-col min-[650px]:flex-row"
+          >
+            <div
+              id="player1-container"
+              className="w-full items-center flex flex-col"
+            >
+              <h2 className="text-[var(--grey)]">What did you score?</h2>
+              <section className="w-full flex flex-col gap-[5px]">
+                <div className="flex justify-evenly">
+                  <h3 className="text-2xl text-[var(--grey)] font-bold w-[15%]">
+                    IN:
+                  </h3>
+                  <button
+                    onClick={handleIn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    0
+                  </button>
+                  <button
+                    onClick={handleIn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    1
+                  </button>
+                  <button
+                    onClick={handleIn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    2
+                  </button>
+                  <button
+                    onClick={handleIn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    3
+                  </button>
+                  <button
+                    onClick={handleIn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    4
+                  </button>
+                </div>
+                <div className="flex justify-evenly">
+                  <h3 className="text-2xl text-[var(--grey)] font-bold w-[15%]">
+                    ON:
+                  </h3>
+                  <button
+                    onClick={handleOn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    0
+                  </button>
+                  <button
+                    onClick={handleOn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    1
+                  </button>
+                  <button
+                    onClick={handleOn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    2
+                  </button>
+                  <button
+                    onClick={handleOn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    3
+                  </button>
+                  <button
+                    onClick={handleOn1}
+                    className="w-[15%] focus:bg-white focus:text-black bg-blue-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    4
+                  </button>
+                </div>
+              </section>
 
-          <section className="w-[80%] bg-white border border-black m-[5px] p-[5px] flex justify-evenly items center">
-            <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
-              <p className="bg-gray-500 w-full text-center text-white font-bold">
-                IN
-              </p>
-              <p className="bg-white w-full text-center font-bold">{In1}</p>
+              <section className="w-[80%] bg-white border border-black m-[5px] p-[5px] flex justify-evenly items center">
+                <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
+                  <p className="bg-[var(--grey)] w-full text-center text-[white] font-bold">
+                    IN
+                  </p>
+                  <p className="bg-white w-full text-center font-bold">{In1}</p>
+                </div>
+                <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
+                  <p className="bg-[var(--grey)] w-full text-center text-[white] font-bold">
+                    ON
+                  </p>
+                  <p className="bg-white w-full text-center font-bold">{on1}</p>
+                </div>
+                <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
+                  <p className="bg-[var(--grey)] w-full text-center text-[white] font-bold">
+                    OFF
+                  </p>
+                  <p className="bg-white w-full text-center font-bold">
+                    {off1}
+                  </p>
+                </div>
+                <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
+                  <p className="bg-[var(--grey)] w-full text-center text-[white] font-bold">
+                    POINTS
+                  </p>
+                  <p className="bg-white w-full text-green-500 text-center font-bold">
+                    +{points1}
+                  </p>
+                </div>
+              </section>
             </div>
-            <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
-              <p className="bg-gray-500 w-full text-center text-white font-bold">
-                ON
-              </p>
-              <p className="bg-white w-full text-center font-bold">{on1}</p>
-            </div>
-            <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
-              <p className="bg-gray-500 w-full text-center text-white font-bold">
-                OFF
-              </p>
-              <p className="bg-white w-full text-center font-bold">{off1}</p>
-            </div>
-            <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
-              <p className="bg-gray-500 w-full text-center text-white font-bold">
-                POINTS
-              </p>
-              <p className="bg-white w-full text-green-500 text-center font-bold">
-                +{points1}
-              </p>
-            </div>
-          </section>
-          <h2>What did you score?</h2>
-          <section className="w-full flex flex-col gap-[5px]">
-            <div className="flex justify-evenly">
-              <h3 className="text-2xl text-white font-bold w-[15%]">IN:</h3>
-              <button
-                onClick={handleIn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                0
-              </button>
-              <button
-                onClick={handleIn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                1
-              </button>
-              <button
-                onClick={handleIn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                2
-              </button>
-              <button
-                onClick={handleIn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                3
-              </button>
-              <button
-                onClick={handleIn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                4
-              </button>
-            </div>
-            <div className="flex justify-evenly">
-              <h3 className="text-2xl text-white font-bold w-[15%]">ON:</h3>
-              <button
-                onClick={handleOn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                0
-              </button>
-              <button
-                onClick={handleOn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                1
-              </button>
-              <button
-                onClick={handleOn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                2
-              </button>
-              <button
-                onClick={handleOn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                3
-              </button>
-              <button
-                onClick={handleOn2}
-                className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-white"
-              >
-                4
-              </button>
-            </div>
-          </section>
+            <div
+              id="player2-container"
+              className="w-full items-center flex flex-col"
+            >
+              <h2 className="text-[var(--grey)]">What did you score?</h2>
+              <section className="w-full flex flex-col gap-[5px]">
+                <div className="flex justify-evenly">
+                  <h3 className="text-2xl text-[var(--grey)] font-bold w-[15%]">
+                    IN:
+                  </h3>
+                  <button
+                    onClick={handleIn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    0
+                  </button>
+                  <button
+                    onClick={handleIn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    1
+                  </button>
+                  <button
+                    onClick={handleIn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    2
+                  </button>
+                  <button
+                    onClick={handleIn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    3
+                  </button>
+                  <button
+                    onClick={handleIn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    4
+                  </button>
+                </div>
+                <div className="flex justify-evenly">
+                  <h3 className="text-2xl text-[var(--grey)] font-bold w-[15%]">
+                    ON:
+                  </h3>
+                  <button
+                    onClick={handleOn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    0
+                  </button>
+                  <button
+                    onClick={handleOn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    1
+                  </button>
+                  <button
+                    onClick={handleOn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    2
+                  </button>
+                  <button
+                    onClick={handleOn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    3
+                  </button>
+                  <button
+                    onClick={handleOn2}
+                    className="w-[15%] focus:bg-white focus:text-black bg-red-500 h-[40px] rounded text-3xl font-bold text-[var(--light)]"
+                  >
+                    4
+                  </button>
+                </div>
+              </section>
 
-          <section className="w-[80%] bg-white border border-black m-[5px] p-[5px] flex justify-evenly items center">
-            <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
-              <p className="bg-gray-500 w-full text-center text-white font-bold">
-                IN
-              </p>
-              <p className="bg-white w-full text-center font-bold">{In2}</p>
+              <section className="w-[80%] bg-white border border-black m-[5px] p-[5px] flex justify-evenly items center">
+                <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
+                  <p className="bg-[var(--grey)] w-full text-center text-[white] font-bold">
+                    IN
+                  </p>
+                  <p className="bg-white w-full text-center font-bold">{In2}</p>
+                </div>
+                <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
+                  <p className="bg-[var(--grey)] w-full text-center text-[white] font-bold">
+                    ON
+                  </p>
+                  <p className="bg-white w-full text-center font-bold">{on2}</p>
+                </div>
+                <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
+                  <p className="bg-[var(--grey)] w-full text-center text-[white] font-bold">
+                    OFF
+                  </p>
+                  <p className="bg-white w-full text-center font-bold">
+                    {off2}
+                  </p>
+                </div>
+                <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
+                  <p className="bg-[var(--grey)] w-full text-center text-[white] font-bold">
+                    POINTS
+                  </p>
+                  <p className="bg-white w-full text-green-500 text-center font-bold">
+                    +{points2}
+                  </p>
+                </div>
+              </section>
             </div>
-            <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
-              <p className="bg-gray-500 w-full text-center text-white font-bold">
-                ON
-              </p>
-              <p className="bg-white w-full text-center font-bold">{on2}</p>
-            </div>
-            <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
-              <p className="bg-gray-500 w-full text-center text-white font-bold">
-                OFF
-              </p>
-              <p className="bg-white w-full text-center font-bold">{off2}</p>
-            </div>
-            <div className="w-[24%] h-full bg-red-200 flex flex-col items-center">
-              <p className="bg-gray-500 w-full text-center text-white font-bold">
-                POINTS
-              </p>
-              <p className="bg-white w-full text-green-500 text-center font-bold">
-                +{points2}
-              </p>
-            </div>
-          </section>
+          </div>
           <button
             onClick={handleSubmit}
             className="w-full h-[80px] bg-green-300 rounded"
@@ -426,116 +493,143 @@ export default function Advanced(props) {
     );
   }
   return (
-    <div
-      id="singles"
-      className="w-full h-full flex flex-col bg-black p-[5px] justify-start items-center"
-    >
-      <header className="w-full z-20 h-[16%] bg-black flex flex-col justify-start">
-        <section className="flex h-[50%] justify-evenly">
-          <h1 className="text-white">Player1:</h1>
-          <div className="flex flex-col text-center  text-white">
-            <p>PPR</p>
-            <hr></hr>
-            <p className="text-center items-center text-[13px]">
-              {player1PointsPerRound}
-            </p>
-          </div>
-          <div className="flex flex-col text-center  text-white">
-            <p>IN</p>
-            <hr></hr>
-            <p className="text-center items-center text-[13px]">
-              %{player1PercentIn}
-            </p>
-          </div>
-          <div className="flex flex-col text-center  text-white">
-            <p>ON</p>
-            <hr></hr>
-            <p className="text-center items-center text-[13px]">
-              %{player1PercentOn}
-            </p>
-          </div>
-          <div className="flex flex-col text-center  text-white">
-            <p>OFF</p>
-            <hr></hr>
-            <p className="text-center items-center text-[13px]">
-              %{player1PercentOff}
-            </p>
-          </div>
-          <div className="flex flex-col text-center  text-white">
-            <p>4IN</p>
-            <hr></hr>
-            <p className="text-center items-center text-[13px]">
-              %{player1PercentFourIn}
-            </p>
-          </div>
-        </section>
-        <section>
-          <section className="flex h-[50%] justify-evenly">
-            <h1 className="text-white">Player2:</h1>
-            <div className="flex flex-col text-center  text-white">
+    <Fade>
+      <div
+        id="singles"
+        className="w-full h-[100vh] flex flex-col bg-[var(--light)] p-[5px] justify-start items-center"
+      >
+        <header className="w-full z-20 h-[16%] bg-[var(--light)] flex flex-col justify-start min-[650px]:flex-row min-[650px]:justify-between">
+          <section className="grid grid-cols-6 grid-rows-1 items-center h-[50%] justify-evenly min-[650px]:w-[45%] min-[650px]:h-full min-[650px]:justify-start min-[650px]:gap-[8px] min-[650px]:grid min-[650px]:grid-cols-6 min-[650px]:grid-rows-1 min-[650px]:items-center ">
+            <input
+              type="text"
+              onChange={(e) => setPlayer1Name(e.target.value)}
+              placeholder="P1"
+              value={player1Name}
+              className="z-40 bg-[var(--light)] border-b-1 text-[var(--grey)] border-b-2 border-dashed border-blue-600"
+            ></input>
+            <div className="flex flex-col text-center w-[90%] justify-center text-[var(--grey)]">
               <p>PPR</p>
-              <hr></hr>
+              <hr className="border-blue-600"></hr>
+              <p className="text-center items-center text-[13px]">
+                {player1PointsPerRound}
+              </p>
+            </div>
+            <div className="flex flex-col text-center w-[90%] text-[var(--grey)]">
+              <p>IN</p>
+              <hr className="border-blue-600"></hr>
+              <p className="text-center items-center text-[13px]">
+                %{player1PercentIn}
+              </p>
+            </div>
+            <div className="flex flex-col text-center w-[90%] text-[var(--grey)]">
+              <p>ON</p>
+              <hr className="border-blue-600"></hr>
+              <p className="text-center items-center text-[13px]">
+                %{player1PercentOn}
+              </p>
+            </div>
+            <div className="flex flex-col text-center w-[90%] text-[var(--grey)]">
+              <p>OFF</p>
+              <hr className="border-blue-600"></hr>
+              <p className="text-center items-center text-[13px]">
+                %{player1PercentOff}
+              </p>
+            </div>
+            <div className="flex flex-col text-center w-[90%] text-[var(--grey)]">
+              <p>4IN</p>
+              <hr className="border-blue-600"></hr>
+              <p className="text-center items-center text-[13px]">
+                %{player1PercentFourIn}
+              </p>
+            </div>
+          </section>
+
+          <section className="grid grid-cols-6 grid-rows-1 items-center h-[50%] justify-evenly min-[650px]:w-[45%] min-[650px]:h-full min-[650px]:justify-start min-[650px]:gap-[8px] min-[650px]:grid min-[650px]:grid-cols-6 min-[650px]:grid-rows-1 min-[650px]:items-center ">
+            <input
+              type="text"
+              onChange={(e) => setPlayer2Name(e.target.value)}
+              placeholder="P2"
+              value={player2Name}
+              className="z-40 bg-[var(--light)] border-b-2 border-dashed border-red-600 text-[var(--grey)]"
+            ></input>
+            <div className="flex flex-col text-center w-[90%]  text-[var(--grey)]">
+              <p>PPR</p>
+              <hr className="border-red-600"></hr>
               <p className="text-center items-center text-[13px]">
                 {player2PointsPerRound}
               </p>
             </div>
-            <div className="flex flex-col text-center  text-white">
+            <div className="flex flex-col text-center w-[90%] text-[var(--grey)]">
               <p>IN</p>
-              <hr></hr>
+              <hr className="border-red-600"></hr>
               <p className="text-center text-[13px] items-center">
                 %{player2PercentIn}
               </p>
             </div>
-            <div className="flex flex-col text-center  text-white">
+            <div className="flex flex-col text-center w-[90%] text-[var(--grey)]">
               <p>ON</p>
-              <hr></hr>
+              <hr className="border-red-600"></hr>
               <p className="text-center items-center text-[13px]">
                 %{player2PercentOn}
               </p>
             </div>
-            <div className="flex flex-col text-center  text-white">
+            <div className="flex flex-col text-center w-[90%] text-[var(--grey)]">
               <p>OFF</p>
-              <hr></hr>
+              <hr className="border-red-600"></hr>
               <p className="text-center items-center text-[13px]">
                 %{player2PercentOff}
               </p>
             </div>
-            <div className="flex flex-col text-center  text-white">
+            <div className="flex flex-col text-center w-[90%] text-[var(--grey)]">
               <p>4IN</p>
-              <hr></hr>
+              <hr className="border-red-600"></hr>
               <p className="text-center text-[13px] items-center">
                 %{player2PercentFourIn}
               </p>
             </div>
           </section>
-        </section>
-      </header>
-      <AdvancedCounter
-        roundScores={player1PointsRound}
-        player={1}
-        score={score1}
-        isActive={isActive}
-        setIsActive={setIsActive}
-      />
-      <div className="w-full z-20 h-[8%] flex justify-evenly items-center text-white bg-black">
-        <Link to="/simple">
-          <button className="bg-white p-[4px] shadow-[rgba(255, 255, 255, 0.35) 0px 5px 15px;] text-black rounded font-bold">Simple</button>
-        </Link>
-        <div className="flex flex-col justify-center items-center">
-          <h2>Round</h2>
-          <p>{round}</p>
+        </header>
+        <div className="flex flex-col min-[650px]:flex-row w-full h-[84%]">
+          <AdvancedCounter
+            roundScores={player1PointsRound}
+            playerName={player1Name}
+            setPlayerName={setPlayer1Name}
+            player={1}
+            score={score1}
+            isActive={isActive}
+            setIsActive={setIsActive}
+          />
+          <div className="w-full z-20 h-[10%] min-[650px]:flex-col min-[650px]:h-full min-[650px]:w-[10%] flex justify-evenly items-center text-[var(--grey)] bg-[var(--light)]">
+            <Link to="/simple">
+              <button className="bg-[var(--grey)] p-[4px] shadow-[rgba(255, 255, 255, 0.35) 0px 5px 15px;] text-[var(--light)] rounded font-bold">
+                Simple
+              </button>
+            </Link>
+            <div className="flex flex-col justify-center items-center">
+              <h2 className="font-righteous text-1xl text-[var(--red)]">
+                Round
+              </h2>
+              <p className="font-righteous text-2xl text-[var(--red)]">
+                {round}
+              </p>
+            </div>
+            <Link to="/">
+              <button className="bg-[var(--grey)] p-[4px] shadow-[rgba(255, 255, 255, 0.35) 0px 5px 15px;] text-[var(--light)] rounded font-bold">
+                Home
+              </button>
+            </Link>
+          </div>
+          <AdvancedCounter
+            playerName={player2Name}
+            setPlayerName={setPlayer2Name}
+            roundScores={player2PointsRound}
+            player={2}
+            score={score2}
+            isActive={isActive}
+            setIsActive={setIsActive}
+          />
         </div>
-        <Link to="/">
-          <button className="bg-white p-[4px] shadow-[rgba(255, 255, 255, 0.35) 0px 5px 15px;] text-black rounded font-bold">Home</button>
-        </Link>
       </div>
-      <AdvancedCounter
-        roundScores={player2PointsRound}
-        player={2}
-        score={score2}
-        isActive={isActive}
-        setIsActive={setIsActive}
-      />
-    </div>
+    </Fade>
   );
 }

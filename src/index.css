@@ -1,12 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Righteous&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-
 
 html,
 #root,
 :root {
   height: 100%;
   width: 100%;
+  background-color: var(--light);
+}
+
+:root {
+  --grey: #4d4d4d;
+  --red: #b46060;
+  --orange: #ffbf9b;
+  --light: #fff4e0;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
